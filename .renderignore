@@ -1,0 +1,50 @@
+# Render ignore file - files/folders to exclude from deployment
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+output.log
+
+# Environment files (use Render env vars instead)
+.env
+.env.local
+.env.*.local
+
+# Documentation
+*.md
+!README.md
+
+# Scripts
+quick_setup.sh
+test_*.py
+
+# Uploads (if any)
+uploads/
+*.jpg
+*.png
+*.jpeg
+*.gif
+
