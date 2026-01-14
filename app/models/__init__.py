@@ -2,7 +2,7 @@
 Database models initialization
 """
 from app.models.user import User, UserSubject, UserRole, StudentClass
-from app.models.question import QuestionHistory, StudyPlan, ExamAttempt, SavedLesson, LessonChat
+from app.models.question import QuestionHistory, StudyPlan, ExamAttempt, SavedLesson, LessonChat, PastQuestion
 
 __all__ = [
     "User",
@@ -14,6 +14,7 @@ __all__ = [
     "ExamAttempt",
     "SavedLesson",
     "LessonChat",
+    "PastQuestion",
 ]
 
 

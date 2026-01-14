@@ -34,12 +34,10 @@ AVAILABLE_SUBJECTS = [
     "Biology",
     "Economics",
     "Geography",
-    "Government",
     "Literature in English",
     "Commerce",
     "Accounting",
     "Agricultural Science",
-    "Civic Education",
     "Computer Studies",
     "Further Mathematics"
 ]

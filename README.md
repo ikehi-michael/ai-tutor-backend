@@ -107,11 +107,8 @@ Run migrations:
 # Install alembic if not already installed
 pip install alembic
 
-# Initialize alembic
-alembic init alembic
-
 # Create migration
-alembic revision --autogenerate -m "Initial migration"
+alembic revision --autogenerate -m "Initial database setup"
 
 # Apply migration
 alembic upgrade head

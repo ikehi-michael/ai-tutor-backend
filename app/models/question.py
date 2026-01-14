@@ -1,7 +1,7 @@
 """
 Question history and exam models
 """
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, JSON, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -150,4 +150,34 @@ class LessonChat(Base):
     lesson = relationship("SavedLesson", back_populates="chat_messages")
     user = relationship("User", back_populates="lesson_chats")
 
+
+class PastQuestion(Base):
+    """Past exam questions from PDFs"""
+    __tablename__ = "past_questions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # Question identification
+    exam_type = Column(String, nullable=False)  # "JAMB", "WAEC", "NECO"
+    subject = Column(String, nullable=False)
+    year = Column(String, nullable=False)  # "2024", "2023", etc.
+    
+    # Question data
+    question_number = Column(Integer, nullable=False)
+    question_text = Column(Text, nullable=False)
+    options = Column(JSON, nullable=False)  # {"A": "...", "B": "...", "C": "...", "D": "..."}
+    correct_answer = Column(String, nullable=False)  # "A", "B", "C", or "D"
+    topic = Column(String, nullable=True)  # Extracted or inferred topic
+    
+    # Source metadata
+    source_pdf = Column(String, nullable=True)  # Original PDF filename
+    page_number = Column(Integer, nullable=True)  # Page in PDF where question was found
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Indexes for faster queries
+    __table_args__ = (
+        Index('idx_exam_subject_year', 'exam_type', 'subject', 'year'),
+    )
 

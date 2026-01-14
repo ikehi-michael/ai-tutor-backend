@@ -203,3 +203,38 @@ class LessonChatResponse(BaseModel):
     message: str
 
 
+# ===== Past Questions =====
+
+class PastQuestionResponse(BaseModel):
+    """Schema for past question response"""
+    id: int
+    exam_type: str
+    subject: str
+    year: str
+    question_number: int
+    question_text: str
+    options: Dict[str, str]
+    correct_answer: str
+    topic: Optional[str]
+    source_pdf: Optional[str]
+    page_number: Optional[int]
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class PastQuestionUpload(BaseModel):
+    """Schema for past question upload request"""
+    exam_type: str
+    subject: str
+    year: str
+
+
+class AvailablePastQuestionsResponse(BaseModel):
+    """Schema for available past questions list"""
+    exam_type: str
+    subject: str
+    year: str
+    question_count: int
+

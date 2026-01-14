@@ -70,3 +70,6 @@ uploads/
 Thumbs.db
 
 
+ai_tutor_backup_20260114_161044.sql
+MIGRATE_TO_RENDER.md
+backup_and_restore_db.sh

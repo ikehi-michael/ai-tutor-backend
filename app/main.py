@@ -4,7 +4,7 @@ Main FastAPI application entry point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import auth, questions, topics, exams, study_plans, dashboard
+from app.api.routes import auth, questions, topics, exams, study_plans, dashboard, past_questions
 
 app = FastAPI(
     title="AI Tutor API",
@@ -28,6 +28,7 @@ app.include_router(topics.router, prefix="/api/topics", tags=["Topics"])
 app.include_router(exams.router, prefix="/api/exams", tags=["Exams"])
 app.include_router(study_plans.router, prefix="/api/study-plans", tags=["Study Plans"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
+app.include_router(past_questions.router, prefix="/api/past-questions", tags=["Past Questions"])
 
 @app.get("/")
 async def root():

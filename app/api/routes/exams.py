@@ -8,7 +8,7 @@ from datetime import datetime
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User, UserSubject
-from app.models.question import ExamAttempt
+from app.models.question import ExamAttempt, PastQuestion
 from app.schemas.question import (
     MockExamRequest,
     MockExamResponse,
@@ -60,21 +60,90 @@ async def create_mock_exam(
     db: Session = Depends(get_db)
 ):
     """
-    Create a new mock exam
-    
-    Note: In production, questions should come from a proper question bank database
+    Create a new mock exam from past questions database
+    Falls back to sample questions if no past questions available
     """
-    # Get questions for the subject
+    import random
+    
+    # First, try to get questions from past questions database
+    query = db.query(PastQuestion).filter(
+        PastQuestion.exam_type == request.exam_type,
+        PastQuestion.subject == request.subject,
+        PastQuestion.correct_answer.isnot(None)  # Only questions with answers
+    )
+    
+    if request.year and request.year != "Random Mix":
+        query = query.filter(PastQuestion.year == request.year)
+    
+    questions_pool_db = query.all()
+    
+    # If we have past questions, use them
+    if questions_pool_db:
+        num_questions = request.number_of_questions or 50
+        selected_past_questions = random.sample(
+            questions_pool_db,
+            min(num_questions, len(questions_pool_db))
+        )
+        
+        # Format questions (hide correct answers)
+        exam_questions = []
+        questions_for_storage = []
+        
+        for i, pq in enumerate(selected_past_questions, 1):
+            exam_questions.append({
+                "question_number": i,
+                "question_text": pq.question_text,
+                "options": pq.options,
+                "correct_answer": None  # Hidden from student
+            })
+            
+            questions_for_storage.append({
+                "question": pq.question_text,
+                "options": pq.options,
+                "correct_answer": pq.correct_answer,
+                "topic": pq.topic or "Unknown"
+            })
+        
+        # Create exam attempt record
+        exam_attempt = ExamAttempt(
+            user_id=current_user.id,
+            exam_type=request.exam_type,
+            subject=request.subject,
+            year=request.year,
+            questions=questions_for_storage,
+            user_answers={},
+            correct_answers={str(i+1): pq.correct_answer for i, pq in enumerate(selected_past_questions)},
+            time_limit_minutes=request.time_limit_minutes or 90,
+            time_taken_seconds=0,
+            total_questions=len(exam_questions),
+            correct_count=0,
+            score_percentage=0
+        )
+        
+        db.add(exam_attempt)
+        db.commit()
+        db.refresh(exam_attempt)
+        
+        return {
+            "exam_id": exam_attempt.id,
+            "exam_type": request.exam_type,
+            "subject": request.subject,
+            "total_questions": len(exam_questions),
+            "time_limit_minutes": request.time_limit_minutes or 90,
+            "questions": [ExamQuestion(**q) for q in exam_questions],
+            "started_at": exam_attempt.started_at
+        }
+    
+    # Fallback to sample questions if no past questions available
     questions_pool = SAMPLE_QUESTIONS.get(request.subject, [])
     
     if not questions_pool:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"No questions available for {request.subject}. Coming soon!"
+            detail=f"No questions available for {request.subject} {request.exam_type}. Please upload past questions first or try a different subject."
         )
     
-    # Select random questions (in production, use proper randomization from DB)
-    import random
+    # Select random questions from sample
     selected_questions = random.sample(
         questions_pool,
         min(request.number_of_questions, len(questions_pool))

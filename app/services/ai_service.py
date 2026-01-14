@@ -235,7 +235,7 @@ Response format (JSON):
     "detailed_explanation": "comprehensive explanation with diagrams described (use LaTeX for all formulas and equations, markdown tables for structured data)",
     "key_concepts": ["concept1", "concept2"],
     "examples": [
-        "Example problem with solution. Use LaTeX for formulas: Problem: Solve $x^2 - 5x + 6 = 0$. Solution: Using factorization, $(x-2)(x-3) = 0$, so $x = 2$ or $x = 3$. Use markdown tables when comparing data."
+        "Example problem with solution (in new line). Use LaTeX for formulas: Problem: Solve $x^2 - 5x + 6 = 0$. Solution: Using factorization, $(x-2)(x-3) = 0$, so $x = 2$ or $x = 3$. Use markdown tables when comparing data."
     ],
     "practice_questions": ["question1 (use LaTeX for math, tables in markdown)", "question2", "question3"],
     "common_mistakes": ["mistake1", "mistake2"],
