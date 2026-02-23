@@ -17,7 +17,8 @@ class UserRegister(BaseModel):
     full_name: str = Field(..., min_length=2)
     role: UserRole = UserRole.STUDENT
     student_class: Optional[StudentClass] = None
-    subjects: List[str] = []  # List of subject names
+    subjects: List[str] = []
+    invite_code: Optional[str] = None
 
 
 class UserLogin(BaseModel):

@@ -13,6 +13,7 @@ from app.core.security import (
     get_current_user
 )
 from app.models.user import User, UserSubject, UserRole
+from app.models.institution import Institution
 from app.schemas.user import (
     UserRegister, 
     UserLogin, 
@@ -49,6 +50,29 @@ async def register_user(
                 detail="Phone number already registered"
             )
     
+    # Resolve invite code to institution
+    institution_id = None
+    if user_data.invite_code:
+        inst = db.query(Institution).filter(
+            Institution.invite_code == user_data.invite_code,
+            Institution.is_active == True,
+        ).first()
+        if not inst:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid invite code"
+            )
+        from sqlalchemy import func as sa_func
+        student_count = db.query(sa_func.count(User.id)).filter(
+            User.institution_id == inst.id, User.role == UserRole.STUDENT
+        ).scalar() or 0
+        if student_count >= inst.max_students:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This institution has reached its student limit"
+            )
+        institution_id = inst.id
+
     # Create new user
     new_user = User(
         email=user_data.email,
@@ -58,7 +82,8 @@ async def register_user(
         role=user_data.role,
         student_class=user_data.student_class,
         is_active=True,
-        subscription_tier="free"
+        subscription_tier="free",
+        institution_id=institution_id,
     )
     
     db.add(new_user)

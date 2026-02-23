@@ -176,3 +176,39 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
     return current_user
 
 
+async def get_current_school_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Ensure current user is a school admin"""
+    from app.models.user import UserRole
+
+    if current_user.role != UserRole.SCHOOL:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="School admin access required"
+        )
+    return current_user
+
+
+async def get_current_teacher(current_user: User = Depends(get_current_user)) -> User:
+    """Ensure current user is a teacher"""
+    from app.models.user import UserRole
+
+    if current_user.role != UserRole.TEACHER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Teacher access required"
+        )
+    return current_user
+
+
+async def get_current_institution_staff(current_user: User = Depends(get_current_user)) -> User:
+    """Ensure current user is school admin or teacher"""
+    from app.models.user import UserRole
+
+    if current_user.role not in (UserRole.SCHOOL, UserRole.TEACHER):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="School or teacher access required"
+        )
+    return current_user
+
+

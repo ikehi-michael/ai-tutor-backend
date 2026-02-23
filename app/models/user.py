@@ -14,6 +14,7 @@ class UserRole(str, enum.Enum):
     PARENT = "parent"
     ADMIN = "admin"
     SCHOOL = "school"
+    TEACHER = "teacher"
 
 
 class StudentClass(str, enum.Enum):
@@ -46,6 +47,10 @@ class User(Base):
     # Parent-child relationship
     parent_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     parent = relationship("User", remote_side=[id], backref="children")
+    
+    # Institution relationship
+    institution_id = Column(Integer, ForeignKey("institutions.id"), nullable=True)
+    institution = relationship("Institution", back_populates="users", foreign_keys=[institution_id])
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
